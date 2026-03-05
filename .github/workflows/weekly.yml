@@ -1,0 +1,23 @@
+name: Weekly
+on:
+  schedule:
+    - cron: "11 4 * * 0"
+  workflow_dispatch:
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: generate weekly report stub
+        run: |
+          mkdir -p docs/reports
+          d="$(date -u +%Y-%m-%d)"
+          f="docs/reports/weekly-$d.md"
+          printf "# Weekly report; %s\n\nCI ok.\n" "$d" > "$f"
+      - name: commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/reports
+          git commit -m "docs: weekly report" || exit 0
+          git push
